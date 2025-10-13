@@ -1,16 +1,21 @@
 # app/api/v1/endpoints/credit.py
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Depends
 from typing import List
 from app.schemas.credit import CreditPaymentCreate, CreditPaymentInDB, CreditRecordInDB
 from app.services import credit_service
+from app.core.security import get_current_user, require_l2_permission
 
 router = APIRouter()
 
 @router.post("/credit/", response_model=CreditPaymentInDB, status_code=status.HTTP_201_CREATED)
-def record_credit_payment(payment: CreditPaymentCreate):
+def record_credit_payment(
+    payment: CreditPaymentCreate,
+    current_user: dict = Depends(get_current_user)  # L1 and L2 can create
+):
     """
     Record a payment towards a credit sale.
     Customers can make multiple partial payments (e.g., 10 + 50 + 40 = 100).
+    L1 and L2 users can record credit payments.
     """
     try:
         new_payment = credit_service.create_credit_payment(payment)
@@ -20,10 +25,14 @@ def record_credit_payment(payment: CreditPaymentCreate):
 
 
 @router.delete("/credit/payment/{payment_id}", status_code=status.HTTP_200_OK)
-def delete_credit_payment(payment_id: str):
+def delete_credit_payment(
+    payment_id: str,
+    current_user: dict = Depends(require_l2_permission)  # Only L2 can delete
+):
     """
     Delete a credit payment (for when workers make mistakes).
     This will restore the balance in the sale and credit records.
+    Only L2 users can delete credit payments.
     """
     try:
         result = credit_service.delete_credit_payment(payment_id)
@@ -33,29 +42,40 @@ def delete_credit_payment(payment_id: str):
 
 
 @router.get("/credit/all", response_model=List[CreditRecordInDB])
-def get_all_credit_records():
+def get_all_credit_records(
+    current_user: dict = Depends(get_current_user)  # L1 and L2 can read
+):
     """
     Get all active credit records (customers who still owe money).
+    L1 and L2 users can read credit records.
     """
     credits = credit_service.get_all_credit_records()
     return credits
 
 
 @router.get("/credit/{sale_id}", response_model=List[CreditPaymentInDB])
-def get_payments_for_sale(sale_id: str):
+def get_payments_for_sale(
+    sale_id: str,
+    current_user: dict = Depends(get_current_user)  # L1 and L2 can read
+):
     """
     Get all credit payments for a specific sale.
     Shows the full payment history (e.g., 10, then 50, then 40).
+    L1 and L2 users can read credit payments.
     """
     payments = credit_service.get_credit_payments_for_sale(sale_id)
     return payments
 
 
 @router.get("/credit/record/{sale_id}", response_model=CreditRecordInDB)
-def get_credit_record(sale_id: str):
+def get_credit_record(
+    sale_id: str,
+    current_user: dict = Depends(get_current_user)  # L1 and L2 can read
+):
     """
     Get the current credit record for a specific sale.
     Shows current balance and total amount paid.
+    L1 and L2 users can read credit records.
     """
     record = credit_service.get_credit_record(sale_id)
     if not record:

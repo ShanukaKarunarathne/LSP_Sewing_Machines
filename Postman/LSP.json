@@ -1,0 +1,1018 @@
+{
+	"info": {
+		"name": "LSP Sewing Machines POS API",
+		"description": "Complete API collection with authentication testing for L1 and L2 users",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{access_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"item": [
+		{
+			"name": "0. Health Check",
+			"item": [
+				{
+					"name": "API Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/",
+							"host": ["{{base_url}}"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "1. Authentication",
+			"item": [
+				{
+					"name": "Login as Admin (L2)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"pm.environment.set(\"access_token\", jsonData.access_token);",
+									"pm.environment.set(\"user_level\", jsonData.user.level);",
+									"pm.environment.set(\"username\", jsonData.user.username);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/users/login",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "users", "login"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login as L1 User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"pm.environment.set(\"l1_token\", jsonData.access_token);",
+									"pm.environment.set(\"l1_username\", jsonData.user.username);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"cashier1\",\n  \"password\": \"cashier123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/users/login",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "users", "login"]
+						},
+						"description": "Login as L1 user (create this user first using the Register endpoint)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Current User Info",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/users/me",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "users", "me"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2. User Management (L2 Only)",
+			"item": [
+				{
+					"name": "Register New User (L1 - Cashier)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"pm.environment.set(\"new_user_id\", jsonData.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"cashier1\",\n  \"password\": \"cashier123\",\n  \"full_name\": \"John Doe\",\n  \"level\": \"L1\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/users/register",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "users", "register"]
+						},
+						"description": "Only L2 users can register new users"
+					},
+					"response": []
+				},
+				{
+					"name": "Register Another L1 User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"cashier2\",\n  \"password\": \"cashier456\",\n  \"full_name\": \"Jane Smith\",\n  \"level\": \"L1\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/users/register",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "users", "register"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register L2 User (Manager)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"manager1\",\n  \"password\": \"manager123\",\n  \"full_name\": \"Alice Manager\",\n  \"level\": \"L2\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/users/register",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "users", "register"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Users",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/users/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "users", ""]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User By ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/users/{{new_user_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "users", "{{new_user_id}}"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update User (L2 Only)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"full_name\": \"John Doe Updated\",\n  \"level\": \"L2\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/users/{{new_user_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "users", "{{new_user_id}}"]
+						},
+						"description": "Only L2 users can update"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User (L2 Only)",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/users/{{new_user_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "users", "{{new_user_id}}"]
+						},
+						"description": "Only L2 users can delete"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "3. Inventory CRUD",
+			"item": [
+				{
+					"name": "Create Inventory Item (L1 & L2)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"pm.environment.set(\"inventory_item_id\", jsonData.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"create\",\n  \"payload\": {\n    \"itemName\": \"Singer Machine Model X1\",\n    \"modelNumber\": \"SX1-2024\",\n    \"quantity\": 10,\n    \"purchasePrice\": 15000,\n    \"sellingPrice\": 20000\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/inventory/manage",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "inventory", "manage"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Read All Inventory Items (L1 & L2)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"read\",\n  \"payload\": {}\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/inventory/manage",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "inventory", "manage"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Read Single Inventory Item (L1 & L2)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"read\",\n  \"payload\": {\n    \"item_id\": \"{{inventory_item_id}}\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/inventory/manage",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "inventory", "manage"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Inventory Item (L2 Only)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"update\",\n  \"payload\": {\n    \"item_id\": \"{{inventory_item_id}}\",\n    \"quantity\": 15,\n    \"sellingPrice\": 22000\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/inventory/manage",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "inventory", "manage"]
+						},
+						"description": "Only L2 users can update. L1 users will get 403 Forbidden"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Inventory Item (L2 Only)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"delete\",\n  \"payload\": {\n    \"item_id\": \"{{inventory_item_id}}\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/inventory/manage",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "inventory", "manage"]
+						},
+						"description": "Only L2 users can delete. L1 users will get 403 Forbidden"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "4. Sales CRUD",
+			"item": [
+				{
+					"name": "Create Sale - Full Payment (L1 & L2)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"pm.environment.set(\"sale_id\", jsonData.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"customerName\": \"Kasun Perera\",\n  \"phoneNumber\": \"0771234567\",\n  \"paymentMethod\": \"Cash\",\n  \"items\": [\n    {\n      \"itemId\": \"{{inventory_item_id}}\",\n      \"quantitySold\": 2\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/sales/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "sales", ""]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Sale - Partial Payment (Credit) (L1 & L2)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"pm.environment.set(\"credit_sale_id\", jsonData.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"customerName\": \"Nimal Silva\",\n  \"phoneNumber\": \"0779876543\",\n  \"paymentMethod\": \"Credit\",\n  \"items\": [\n    {\n      \"itemId\": \"{{inventory_item_id}}\",\n      \"quantitySold\": 1\n    }\n  ],\n  \"amountPaid\": 10000\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/sales/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "sales", ""]
+						},
+						"description": "Partial payment - creates credit record"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Sales (L1 & L2)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/sales/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "sales", ""]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Sale By ID (L1 & L2)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/sales/{{sale_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "sales", "{{sale_id}}"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Sales By Date (L1 & L2)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/sales/by_date/2025-10-13",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "sales", "by_date", "2025-10-13"]
+						},
+						"description": "Change date to today's date (YYYY-MM-DD)"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Sale (L2 Only)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"customerName\": \"Kasun Perera Updated\",\n  \"phoneNumber\": \"0771234999\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/sales/{{sale_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "sales", "{{sale_id}}"]
+						},
+						"description": "Only L2 users can update. L1 users will get 403 Forbidden"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Sale (L2 Only)",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/sales/{{sale_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "sales", "{{sale_id}}"]
+						},
+						"description": "Only L2 users can delete. L1 users will get 403 Forbidden"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "5. Credit CRUD",
+			"item": [
+				{
+					"name": "Record Credit Payment (L1 & L2)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"pm.environment.set(\"credit_payment_id\", jsonData.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"saleId\": \"{{credit_sale_id}}\",\n  \"amount\": 5000,\n  \"paymentMethod\": \"Cash\",\n  \"description\": \"Second installment payment\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/credit/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "credit", ""]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Record Another Credit Payment",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"saleId\": \"{{credit_sale_id}}\",\n  \"amount\": 3000,\n  \"paymentMethod\": \"Card\",\n  \"description\": \"Third installment\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/credit/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "credit", ""]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Credit Records (L1 & L2)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/credit/all",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "credit", "all"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Payments For Sale (L1 & L2)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/credit/{{credit_sale_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "credit", "{{credit_sale_id}}"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Credit Record For Sale (L1 & L2)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/credit/record/{{credit_sale_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "credit", "record", "{{credit_sale_id}}"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Credit Payment (L2 Only)",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/credit/payment/{{credit_payment_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "credit", "payment", "{{credit_payment_id}}"]
+						},
+						"description": "Only L2 users can delete. L1 users will get 403 Forbidden"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "6. Expenses CRUD",
+			"item": [
+				{
+					"name": "Create Expense (L1 & L2)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"pm.environment.set(\"expense_id\", jsonData.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"description\": \"Electricity Bill\",\n  \"amount\": 5000,\n  \"category\": \"Utilities\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/expenses/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "expenses", ""]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Another Expense",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"description\": \"Employee Salary - October\",\n  \"amount\": 35000,\n  \"category\": \"Salary\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/expenses/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "expenses", ""]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Expenses (L1 & L2)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/expenses/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "expenses", ""]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Expense By ID (L1 & L2)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/expenses/{{expense_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "expenses", "{{expense_id}}"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Expenses By Date (L1 & L2)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/expenses/by_date/2025-10-13",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "expenses", "by_date", "2025-10-13"]
+						},
+						"description": "Change date to today's date (YYYY-MM-DD)"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Expense (L2 Only)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"description\": \"Electricity Bill - Corrected\",\n  \"amount\": 5500,\n  \"category\": \"Utilities\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/expenses/{{expense_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "expenses", "{{expense_id}}"]
+						},
+						"description": "Only L2 users can update. L1 users will get 403 Forbidden"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Expense (L2 Only)",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/expenses/{{expense_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "expenses", "{{expense_id}}"]
+						},
+						"description": "Only L2 users can delete. L1 users will get 403 Forbidden"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "7. Permission Tests",
+			"item": [
+				{
+					"name": "L1 Try to Update Sale (Should Fail)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{l1_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"customerName\": \"Should Fail\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/sales/{{sale_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "sales", "{{sale_id}}"]
+						},
+						"description": "Expected: 403 Forbidden"
+					},
+					"response": []
+				},
+				{
+					"name": "L1 Try to Delete Expense (Should Fail)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{l1_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/expenses/{{expense_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "expenses", "{{expense_id}}"]
+						},
+						"description": "Expected: 403 Forbidden"
+					},
+					"response": []
+				},
+				{
+					"name": "L1 Try to Update User (Should Fail)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{l1_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"full_name\": \"Should Fail\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/users/{{new_user_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "users", "{{new_user_id}}"]
+						},
+						"description": "Expected: 403 Forbidden"
+					},
+					"response": []
+				},
+				{
+					"name": "L1 Try to Delete Inventory (Should Fail)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{l1_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"delete\",\n  \"payload\": {\n    \"item_id\": \"{{inventory_item_id}}\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/inventory/manage",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "inventory", "manage"]
+						},
+						"description": "Expected: 403 Forbidden"
+					},
+					"response": []
+				},
+				{
+					"name": "No Token - Unauthorized (Should Fail)",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/sales/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "sales", ""]
+						},
+						"description": "Expected: 401 Unauthorized"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000",
+			"type": "string"
+		},
+		{
+			"key": "access_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "l1_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "inventory_item_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "sale_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "credit_sale_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "credit_payment_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "expense_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "new_user_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "user_level",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "username",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "l1_username",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

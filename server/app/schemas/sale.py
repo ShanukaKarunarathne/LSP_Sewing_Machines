@@ -21,7 +21,7 @@ class InstallmentInfo(BaseModel):
 class SaleCreate(SaleBase):
     items: List[SaleItem]
     amountPaid: Optional[float] = None
-    installment_info: Optional[InstallmentInfo] = None # Add this line
+    installment_info: Optional[InstallmentInfo] = None
 
 class SaleUpdate(BaseModel):
     customerName: Optional[str] = None
@@ -29,6 +29,8 @@ class SaleUpdate(BaseModel):
     paymentMethod: Optional[str] = None
 
 class SaleItemInDB(SaleItem):
+    itemName: str  # ADD: Item name in response
+    modelNumber: str  # ADD: Model number in response
     pricePerItem: float
     totalAmount: float
 
@@ -40,7 +42,7 @@ class SaleInDB(SaleBase):
     amountPaid: float
     balance: float
     creditStatus: str
-    installment_info: Optional[InstallmentInfo] = None # Add this line
+    installment_info: Optional[InstallmentInfo] = None
 
 class SalesByDateResponse(BaseModel):
     sales: List[SaleInDB]

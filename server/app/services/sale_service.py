@@ -43,6 +43,8 @@ def process_sale_transaction(transaction, sale_data: SaleCreate):
 
         processed_items.append({
             "itemId": item_sold.itemId,
+            "itemName": item_data['itemName'],  # ADD: Item name
+            "modelNumber": item_data['modelNumber'],  # ADD: Model number
             "quantitySold": item_sold.quantitySold,
             "pricePerItem": price_per_item,
             "totalAmount": item_total_amount
@@ -72,6 +74,10 @@ def process_sale_transaction(transaction, sale_data: SaleCreate):
         "creditStatus": credit_status,
         "date": datetime.now().isoformat()
     }
+    
+    # ADD: Include installment_info if provided
+    if sale_data.installment_info:
+        sale_record["installment_info"] = sale_data.installment_info.model_dump()
     
     transaction.set(sale_ref, sale_record)
 

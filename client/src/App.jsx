@@ -98,7 +98,7 @@ const AppRoutes = () => {
       <Route
         path="/credit"
         element={
-          <ProtectedRoute requireL2={true}>
+          <ProtectedRoute>
             <CreditPage />
           </ProtectedRoute>
         }

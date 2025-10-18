@@ -1,10 +1,10 @@
-// src/components/ProtectedRoute.jsx
 import React from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const ProtectedRoute = ({ children, requireL2 = false }) => {
   const { isAuthenticated, loading, isL1, isL2 } = useAuth();
+  const location = useLocation();
 
   if (loading) {
     return (
@@ -18,8 +18,9 @@ const ProtectedRoute = ({ children, requireL2 = false }) => {
     return <Navigate to="/login" replace />;
   }
 
-  // If route requires L2 access and user is L1, redirect to sales
-  if (requireL2 && isL1()) {
+  // ✅ Allow L1 users to access /credit even if requireL2=true
+  const allowedForL1 = ['/sales', '/credit'];
+  if (requireL2 && isL1() && !allowedForL1.includes(location.pathname)) {
     return <Navigate to="/sales" replace />;
   }
 

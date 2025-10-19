@@ -43,7 +43,21 @@ export const translations = {
     partialStatus: 'Partial',
     unpaidStatus: 'Unpaid',
     searchPlaceholder: 'Search sales...',
-    required: '*'
+    required: '*',
+    oldItemExchange: 'Old Item Exchange',
+    oldItemDescription: 'What is the old item? (e.g., Old Singer machine)',
+    deductionAmount: 'How much to reduce from bill?',
+    borrowedItems: 'Borrowed Items (From Neighbor)',
+    addBorrowedItem: '+ Add Item',
+    removeBorrowedItem: 'Remove',
+    borrowedItemCost: 'How much did you pay?',
+    borrowedItemSelling: 'Selling price',
+    borrowedItemQty: 'Quantity',
+    itemNumber: 'Item',
+    whatIsItem: 'What is this item?',
+    inventoryItems: 'Inventory Items',
+    oldItemDeduction: 'Old Item Deduction',
+    borrowedItemsTotal: 'Borrowed Items'
   },
   si: {
     newSale: 'නව විකුණුම',
@@ -89,6 +103,20 @@ export const translations = {
     partialStatus: 'අර්ධ වශයෙන්',
     unpaidStatus: 'නොගෙවූ',
     searchPlaceholder: 'විකුණුම් සොයන්න...',
-    required: '*'
+    required: '*',
+    oldItemExchange: 'පැරණි භාණ්ඩ හුවමාරුව',
+    oldItemDescription: 'පැරණි භාණ්ඩය කුමක්ද? (උදා: පැරණි සිංගර් යන්ත්‍රය)',
+    deductionAmount: 'බිල්පතෙන් කොපමණ අඩු කරන්නද?',
+    borrowedItems: 'ණයට ගත් භාණ්ඩ (අසල්වැසියාගෙන්)',
+    addBorrowedItem: '+ භාණ්ඩයක් එකතු කරන්න',
+    removeBorrowedItem: 'ඉවත් කරන්න',
+    borrowedItemCost: 'ඔබ ගෙවූ මුදල කීයද?',
+    borrowedItemSelling: 'විකුණන මිල',
+    borrowedItemQty: 'ප්‍රමාණය',
+    itemNumber: 'භාණ්ඩය',
+    whatIsItem: 'මෙම භාණ්ඩය කුමක්ද?',
+    inventoryItems: 'ඉන්වෙන්ටරි භාණ්ඩ',
+    oldItemDeduction: 'පැරණි භාණ්ඩ අඩු කිරීම',
+    borrowedItemsTotal: 'ණයට ගත් භාණ්ඩ'
   }
 };

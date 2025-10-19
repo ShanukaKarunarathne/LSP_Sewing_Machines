@@ -16,12 +16,26 @@ class SaleBase(BaseModel):
 class InstallmentInfo(BaseModel):
     has_plan: bool = False
     number_of_installments: Optional[int] = None
-    due_dates: Optional[List[str]] = None # List of due dates in "YYYY-MM-DD" format
+    due_dates: Optional[List[str]] = None
+
+# New schema for old item exchange
+class OldItemExchange(BaseModel):
+    description: str
+    deduction_amount: float
+
+# New schema for borrowed item
+class BorrowedItem(BaseModel):
+    description: str
+    borrowed_cost: float  # Cost paid to neighbor
+    selling_price: float  # Price sold to customer
+    quantity: int = 1
 
 class SaleCreate(SaleBase):
     items: List[SaleItem]
     amountPaid: Optional[float] = None
     installment_info: Optional[InstallmentInfo] = None
+    old_item_exchange: Optional[OldItemExchange] = None
+    borrowed_items: Optional[List[BorrowedItem]] = None
 
 class SaleUpdate(BaseModel):
     customerName: Optional[str] = None
@@ -29,8 +43,8 @@ class SaleUpdate(BaseModel):
     paymentMethod: Optional[str] = None
 
 class SaleItemInDB(SaleItem):
-    itemName: str  # ADD: Item name in response
-    modelNumber: str  # ADD: Model number in response
+    itemName: str
+    modelNumber: str
     pricePerItem: float
     totalAmount: float
 
@@ -43,6 +57,10 @@ class SaleInDB(SaleBase):
     balance: float
     creditStatus: str
     installment_info: Optional[InstallmentInfo] = None
+    old_item_exchange: Optional[OldItemExchange] = None
+    borrowed_items: Optional[List[BorrowedItem]] = None
+    old_item_deduction: Optional[float] = None
+    borrowed_items_profit: Optional[float] = None
 
 class SalesByDateResponse(BaseModel):
     sales: List[SaleInDB]

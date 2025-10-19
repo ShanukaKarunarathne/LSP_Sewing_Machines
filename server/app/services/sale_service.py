@@ -1,7 +1,7 @@
 # app/services/sale_service.py
 from datetime import datetime
 from firebase_admin import firestore
-from app.db.firebase_config import db, inventory_collection, sales_collection, credit_collection
+from app.db.firebase_config import db, inventory_collection, sales_collection, credit_collection, expenses_collection
 from app.schemas.sale import SaleCreate, SaleUpdate
 from app.schemas.credit import CreditRecordCreate
 from google.cloud.firestore_v1.base_query import FieldFilter
@@ -43,14 +43,48 @@ def process_sale_transaction(transaction, sale_data: SaleCreate):
 
         processed_items.append({
             "itemId": item_sold.itemId,
-            "itemName": item_data['itemName'],  # ADD: Item name
-            "modelNumber": item_data['modelNumber'],  # ADD: Model number
+            "itemName": item_data['itemName'],
+            "modelNumber": item_data['modelNumber'],
             "quantitySold": item_sold.quantitySold,
             "pricePerItem": price_per_item,
             "totalAmount": item_total_amount
         })
 
-    # --- 4. PAYMENT & CREDIT LOGIC ---
+    # --- 4. HANDLE OLD ITEM EXCHANGE ---
+    old_item_deduction = 0.0
+    if sale_data.old_item_exchange:
+        old_item_deduction = sale_data.old_item_exchange.deduction_amount
+        total_sale_amount -= old_item_deduction
+        
+        # Record as expense (negative for getting old item)
+        expense_ref = expenses_collection.document()
+        expense_data = {
+            "description": f"Old Item Received: {sale_data.old_item_exchange.description}",
+            "amount": -old_item_deduction,
+            "category": "Old Item Exchange",
+            "date": datetime.now().isoformat()
+        }
+        transaction.set(expense_ref, expense_data)
+
+    # --- 5. HANDLE BORROWED ITEMS ---
+    borrowed_items_profit = 0.0
+    if sale_data.borrowed_items:
+        for borrowed in sale_data.borrowed_items:
+            borrowed_profit = (borrowed.selling_price - borrowed.borrowed_cost) * borrowed.quantity
+            borrowed_items_profit += borrowed_profit
+            total_sale_amount += borrowed.selling_price * borrowed.quantity
+            
+            # Record borrowed cost as expense
+            expense_ref = expenses_collection.document()
+            expense_data = {
+                "description": f"Borrowed Item Cost: {borrowed.description}",
+                "amount": borrowed.borrowed_cost * borrowed.quantity,
+                "category": "Borrowed Item",
+                "date": datetime.now().isoformat()
+            }
+            transaction.set(expense_ref, expense_data)
+
+    # --- 6. PAYMENT & CREDIT LOGIC ---
     amount_paid = sale_data.amountPaid if sale_data.amountPaid is not None else total_sale_amount
     balance = total_sale_amount - amount_paid
     
@@ -59,7 +93,6 @@ def process_sale_transaction(transaction, sale_data: SaleCreate):
         credit_status = "Paid"
     elif balance < total_sale_amount:
         credit_status = "Partial"
-
 
     # Create the final sale record
     sale_ref = sales_collection.document()
@@ -75,13 +108,20 @@ def process_sale_transaction(transaction, sale_data: SaleCreate):
         "date": datetime.now().isoformat()
     }
     
-    # ADD: Include installment_info if provided
     if sale_data.installment_info:
         sale_record["installment_info"] = sale_data.installment_info.model_dump()
     
+    if sale_data.old_item_exchange:
+        sale_record["old_item_exchange"] = sale_data.old_item_exchange.model_dump()
+        sale_record["old_item_deduction"] = old_item_deduction
+    
+    if sale_data.borrowed_items:
+        sale_record["borrowed_items"] = [b.model_dump() for b in sale_data.borrowed_items]
+        sale_record["borrowed_items_profit"] = borrowed_items_profit
+    
     transaction.set(sale_ref, sale_record)
 
-    # --- 5. CREATE CREDIT RECORD IF THERE'S A BALANCE ---
+    # --- 7. CREATE CREDIT RECORD IF THERE'S A BALANCE ---
     if balance > 0:
         credit_record = CreditRecordCreate(
             saleId=sale_ref.id,
@@ -91,7 +131,7 @@ def process_sale_transaction(transaction, sale_data: SaleCreate):
             amountPaid=amount_paid,
             balance=balance,
         )
-        credit_ref = credit_collection.document(sale_ref.id) # Use saleId as document ID for easy lookup
+        credit_ref = credit_collection.document(sale_ref.id)
         credit_data = credit_record.model_dump()
         credit_data["date"] = datetime.now().isoformat()
         transaction.set(credit_ref, credit_data)

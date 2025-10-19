@@ -1,4 +1,14 @@
 export const generateBillHTML = (saleData) => {
+  // Calculate inventory items subtotal
+  const inventorySubtotal = saleData.items.reduce((sum, item) => 
+    sum + (item.quantitySold * item.pricePerItem), 0
+  );
+
+  // Calculate borrowed items total
+  const borrowedTotal = (saleData.borrowed_items || []).reduce((sum, item) => 
+    sum + (item.selling_price * item.quantity), 0
+  );
+
   return `
     <html>
       <head>
@@ -95,6 +105,13 @@ export const generateBillHTML = (saleData) => {
           td.right {
             text-align: right;
           }
+
+          .section-header {
+            background-color: #f0f0f0;
+            font-weight: bold;
+            padding: 8px;
+            border: 1px solid #000;
+          }
           
           .totals { 
             margin-top: 20px;
@@ -107,6 +124,15 @@ export const generateBillHTML = (saleData) => {
             justify-content: space-between;
             margin: 8px 0;
             font-size: 13px;
+          }
+
+          .totals-row.highlight {
+            font-weight: bold;
+            color: #c00;
+          }
+
+          .totals-row.positive {
+            color: #0a0;
           }
           
           .totals-row.total {
@@ -201,6 +227,8 @@ export const generateBillHTML = (saleData) => {
           </div>
         </div>
 
+        ${saleData.items && saleData.items.length > 0 ? `
+        <div class="section-header">INVENTORY ITEMS</div>
         <table>
           <thead>
             <tr>
@@ -227,11 +255,82 @@ export const generateBillHTML = (saleData) => {
                 </tr>
               `;
             }).join('')}
+            <tr>
+              <td colspan="4" class="right" style="font-weight: bold;">Inventory Subtotal:</td>
+              <td class="right" style="font-weight: bold;">Rs. ${inventorySubtotal.toFixed(2)}</td>
+            </tr>
           </tbody>
         </table>
+        ` : ''}
+
+        ${saleData.borrowed_items && saleData.borrowed_items.length > 0 ? `
+        <div class="section-header">ADDITIONAL ITEMS</div>
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 10%;">No.</th>
+              <th style="width: 55%;">Description</th>
+              <th style="width: 15%;">Qty</th>
+              <th style="width: 20%;">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${saleData.borrowed_items.map((item, index) => {
+              const itemTotal = item.selling_price * item.quantity;
+              return `
+                <tr>
+                  <td class="center">${index + 1}</td>
+                  <td>${item.description}</td>
+                  <td class="center">${item.quantity}</td>
+                  <td class="right">Rs. ${itemTotal.toFixed(2)}</td>
+                </tr>
+              `;
+            }).join('')}
+            <tr>
+              <td colspan="3" class="right" style="font-weight: bold;">Additional Items Subtotal:</td>
+              <td class="right" style="font-weight: bold;">Rs. ${borrowedTotal.toFixed(2)}</td>
+            </tr>
+          </tbody>
+        </table>
+        ` : ''}
+
+        ${saleData.old_item_exchange ? `
+        <div class="info-section" style="background-color: #ffe0e0;">
+          <div style="font-weight: bold; margin-bottom: 5px;">OLD ITEM EXCHANGE</div>
+          <div class="info-row">
+            <span class="info-label">Description:</span>
+            <span>${saleData.old_item_exchange.description}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Deduction:</span>
+            <span style="color: #c00; font-weight: bold;">- Rs. ${saleData.old_item_exchange.deduction_amount.toFixed(2)}</span>
+          </div>
+        </div>
+        ` : ''}
 
         <div class="totals">
+          ${saleData.items && saleData.items.length > 0 ? `
           <div class="totals-row">
+            <span>Inventory Items:</span>
+            <span>Rs. ${inventorySubtotal.toFixed(2)}</span>
+          </div>
+          ` : ''}
+          
+          ${saleData.old_item_exchange ? `
+          <div class="totals-row highlight">
+            <span>Old Item Deduction:</span>
+            <span>- Rs. ${saleData.old_item_exchange.deduction_amount.toFixed(2)}</span>
+          </div>
+          ` : ''}
+          
+          ${saleData.borrowed_items && saleData.borrowed_items.length > 0 ? `
+          <div class="totals-row positive">
+            <span>Additional Items:</span>
+            <span>+ Rs. ${borrowedTotal.toFixed(2)}</span>
+          </div>
+          ` : ''}
+
+          <div class="totals-row total">
             <span>Total Amount:</span>
             <span>Rs. ${saleData.totalAmount.toFixed(2)}</span>
           </div>

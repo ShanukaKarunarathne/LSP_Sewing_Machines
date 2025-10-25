@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.v1.endpoints import inventory, sales, expenses, credit, users
+from app.api.v1.endpoints import inventory, sales, expenses, credit, users, quotations
 import os
 from datetime import datetime
 
@@ -41,5 +41,6 @@ app.include_router(users.router, prefix="/api/v1/users", tags=["Users"])
 # Other routes (authentication will be added as needed)
 app.include_router(inventory.router, prefix="/api/v1/inventory", tags=["Inventory"])
 app.include_router(sales.router, prefix="/api/v1/sales", tags=["Sales"])
+app.include_router(quotations.router, prefix="/api/v1/quotations", tags=["Quotations"])
 app.include_router(expenses.router, prefix="/api/v1/expenses", tags=["Expenses"])
 app.include_router(credit.router, prefix="/api/v1", tags=["Credit"])

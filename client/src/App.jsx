@@ -10,10 +10,12 @@ import InventoryPage from './pages/InventoryPage';
 import SalesPage from './pages/SalesPage';
 import ExpensesPage from './pages/ExpensesPage';
 import CreditPage from './pages/CreditPage';
+import QuotationsPage from './pages/QuotationsPage'; // <-- Import QuotationsPage
 
-// Protected Route Component
+// Protected Route Component (keep as is)
 const ProtectedRoute = ({ children, requireL2 = false }) => {
-  const { isAuthenticated, loading, isL1, isL2 } = useAuth();
+  // ... (keep existing code)
+   const { isAuthenticated, loading, isL1, isL2 } = useAuth();
 
   if (loading) {
     return (
@@ -27,24 +29,27 @@ const ProtectedRoute = ({ children, requireL2 = false }) => {
     return <Navigate to="/login" replace />;
   }
 
-  // If route requires L2 access and user is L1, redirect to sales
-  if (requireL2 && isL1()) {
-    return <Navigate to="/sales" replace />;
+  // Allow L1 for Sales, Credit, and Quotations (NEW)
+  const allowedForL1 = ['/sales', '/credit', '/quotations']; // Add /quotations here
+  if (requireL2 && isL1() && !allowedForL1.includes(location.pathname)) {
+    return <Navigate to="/sales" replace />; // Or maybe redirect L1 from restricted pages?
   }
+
 
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-gray-100">
-        {children}
-      </div>
+      <div className="pt-4 pb-8"> {/* Add some padding */}
+         {children}
+       </div>
     </>
   );
 };
 
+
 // App Routes Component
 const AppRoutes = () => {
-  const { isAuthenticated, isL1, user } = useAuth();
+  const { isAuthenticated, isL1 } = useAuth(); // Removed unused 'user' variable
 
   return (
     <Routes>
@@ -52,84 +57,59 @@ const AppRoutes = () => {
         path="/login"
         element={
           isAuthenticated ? (
-            // Redirect based on user level after login
             isL1() ? <Navigate to="/sales" replace /> : <Navigate to="/dashboard" replace />
           ) : (
             <LoginPage />
           )
         }
       />
-      
+
       {/* Sales Page - Accessible by both L1 and L2 */}
       <Route
         path="/sales"
-        element={
-          <ProtectedRoute>
-            <SalesPage />
-          </ProtectedRoute>
-        }
+        element={<ProtectedRoute><SalesPage /></ProtectedRoute>}
       />
-      
+
+       {/* Credit Page - Accessible by both L1 and L2 */}
+       <Route
+         path="/credit"
+         element={<ProtectedRoute><CreditPage /></ProtectedRoute>}
+       />
+
+      {/* Quotations Page - Accessible by both L1 and L2 */}
+      <Route
+        path="/quotations"
+        element={<ProtectedRoute><QuotationsPage /></ProtectedRoute>}
+      />
+
       {/* L2 Only Routes */}
       <Route
         path="/dashboard"
-        element={
-          <ProtectedRoute requireL2={true}>
-            <DashboardPage />
-          </ProtectedRoute>
-        }
+        element={<ProtectedRoute requireL2={true}><DashboardPage /></ProtectedRoute>}
       />
       <Route
         path="/inventory"
-        element={
-          <ProtectedRoute requireL2={true}>
-            <InventoryPage />
-          </ProtectedRoute>
-        }
+        element={<ProtectedRoute requireL2={true}><InventoryPage /></ProtectedRoute>}
       />
       <Route
         path="/expenses"
-        element={
-          <ProtectedRoute requireL2={true}>
-            <ExpensesPage />
-          </ProtectedRoute>
-        }
+        element={<ProtectedRoute requireL2={true}><ExpensesPage /></ProtectedRoute>}
+      />
+
+      {/* Default Routes (keep as is) */}
+      <Route
+        path="/"
+        element={ isAuthenticated ? (isL1() ? <Navigate to="/sales" replace /> : <Navigate to="/dashboard" replace />) : (<Navigate to="/login" replace />)}
       />
       <Route
-        path="/credit"
-        element={
-          <ProtectedRoute>
-            <CreditPage />
-          </ProtectedRoute>
-        }
-      />
-      
-      {/* Default Routes */}
-      <Route 
-        path="/" 
-        element={
-          isAuthenticated ? (
-            isL1() ? <Navigate to="/sales" replace /> : <Navigate to="/dashboard" replace />
-          ) : (
-            <Navigate to="/login" replace />
-          )
-        } 
-      />
-      <Route 
-        path="*" 
-        element={
-          isAuthenticated ? (
-            isL1() ? <Navigate to="/sales" replace /> : <Navigate to="/dashboard" replace />
-          ) : (
-            <Navigate to="/login" replace />
-          )
-        } 
+        path="*"
+        element={ isAuthenticated ? (isL1() ? <Navigate to="/sales" replace /> : <Navigate to="/dashboard" replace />) : (<Navigate to="/login" replace />)}
       />
     </Routes>
   );
 };
 
-// Main App Component
+// Main App Component (keep as is)
 function App() {
   return (
     <Router>

@@ -1,5 +1,17 @@
 export const translations = {
   en: {
+    // ... (keep existing translations)
+    newQuotation: 'New Quotation',
+    quotationHistory: 'Quotation History',
+    recordQuotation: 'Record Quotation & Print',
+    quotationNo: 'Quotation No',
+    quotedItems: 'Quoted Items',
+    estimatedTotal: 'Estimated Total Amount',
+    notes: 'Notes (Optional)',
+    notesPlaceholder: 'Add any notes for the customer...',
+    printQuotation: 'Print Quotation',
+    noQuotations: 'No quotations found.',
+    searchQuotationsPlaceholder: 'Search quotations...',
     newSale: 'New Sale',
     salesHistory: 'Sales History',
     customerName: 'Customer Name',
@@ -60,6 +72,18 @@ export const translations = {
     borrowedItemsTotal: 'Borrowed Items'
   },
   si: {
+    // ... (keep existing translations)
+    newQuotation: 'නව මිල ගණන්',
+    quotationHistory: 'මිල ගණන් ඉතිහාසය',
+    recordQuotation: 'මිල ගණන් සටහන් කර මුද්‍රණය කරන්න',
+    quotationNo: 'මිල ගණන් අංකය',
+    quotedItems: 'මිල ගණන් කළ භාණ්ඩ',
+    estimatedTotal: 'ඇස්තමේන්තුගත මුළු මුදල',
+    notes: 'සටහන් (අත්‍යවශ්‍ය නොවේ)',
+    notesPlaceholder: 'ගනුදෙනුකරු සඳහා සටහන් එක් කරන්න...',
+    printQuotation: 'මිල ගණන් මුද්‍රණය',
+    noQuotations: 'මිල ගණන් හමු නොවීය.',
+    searchQuotationsPlaceholder: 'මිල ගණන් සොයන්න...',
     newSale: 'නව විකුණුම',
     salesHistory: 'විකුණුම් ඉතිහාසය',
     customerName: 'ගනුදෙනුකරුගේ නම',

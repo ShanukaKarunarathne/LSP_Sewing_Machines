@@ -121,4 +121,11 @@ export const creditAPI = {
   deletePayment: (paymentId) => api.delete(`/credit/payment/${paymentId}`),
 };
 
+// ===== QUOTATIONS ENDPOINTS =====
+export const quotationsAPI = {
+  create: (quotationData) => api.post('/quotations/', quotationData),
+  getAll: () => api.get('/quotations/'),
+  getById: (quotationId) => api.get(`/quotations/${quotationId}`),
+};
+
 export default api;
